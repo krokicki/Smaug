@@ -28,7 +28,3 @@ urlpatterns = [
     url(r'^ircview/message/(\d+)/$', ircviews.message, name='message')
 ]
 
-if settings.DEBUG:
-    import debug_toolbar
-    urlpatterns.append(url(r'^__debug__/', include(debug_toolbar.urls)))
-
