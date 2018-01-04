@@ -1,0 +1,14 @@
+<table class="pager">
+<tr>
+    <td>
+    {% if page > 0 %}
+        <a href="javascript:goToPage({{ page }}-1)">Previous Page</a>
+    {% endif %}
+    </td>
+    <td align="right">
+    {% if more %}
+        <a href="javascript:goToPage({{ page }}+1)">Next Page</a>
+    {% endif %}
+    </td>
+</tr>
+</table>

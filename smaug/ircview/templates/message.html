@@ -1,0 +1,18 @@
+{% extends base.html %}
+
+{% block title %}message{% endblock %}
+
+{$ block content %}
+ 
+    <div id="log" class="box">
+        <table cellspacing="5">
+        <tr><td>From:</td><td style="color: {{ msg.from_user.color }}">{{ msg.from_user.handle }}</td></tr>
+        <tr><td>To:</td><td style="color: {{ msg.to_user.color }}">{{ msg.to_user.handle }}</td></tr>
+        <tr><td>Date:</td><td style="color: white">$msg.date</td></tr>
+        <tr><td>Body:</td><td style="color: {{ msg.from_user.color }}">{{ msg.get_body }}</td></tr>
+        </table>
+    </div>
+
+{% endblock %}
+
+

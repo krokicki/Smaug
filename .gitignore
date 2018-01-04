@@ -1,0 +1,6 @@
+*.pyc
+*.swp
+*.iml
+logs
+bot_settings.py
+web_settings.py

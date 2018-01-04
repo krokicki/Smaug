@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}logs{% endblock %}
+{% block pageid %}logs{% endblock %}
+
+{% block onload %}
+{% if anchor %}
+    location.hash = "{{ anchor }}";
+{% endif %}
+{% endblock %}
+
+{% block extrahead %}
+
+<script type="text/javascript">
+    function goToPage(page) {
+        document.pageForm.page.value = page;
+        document.pageForm.submit();
+    }
+</script>
+
+{% endblock %}
+
+{% block pager %}
+
+{% endblock %}
+
+{% block content %}
+    
+    {% if isSearch %}
+    
+        {% include "search.html" %}
+
+        <form name="pageForm" action="/ircview/search/">
+            {% for field in form %}
+            <input type="hidden" name="{{ field.html_name}}" value="{{ field.value }}"/>
+            {% endfor %}
+            {% include "pager.html" %}
+        </form> 
+
+    {% else %}
+
+        <form name="pageForm" action="/ircview/{{ year }}/{{ month }}/">
+            <input type="hidden" name="page" value="{{ page }}"/>
+            {% include "pager.html" %}
+        </form> 
+    
+    {% endif %}
+
+    <div id="log" class="box">
+        <table>
+        {% for line in results %}
+            <tr>
+            <td style="vertical-align: top;">
+                <span class="{{ line.proto }}">{{ line.proto }}</span>
+            </td>
+            <td class="date" style="vertical-align: top; 
+                {% if anchor == line.id %}
+                    background-color: #252;
+                {% endif %}
+                ">
+                <a href="/ircview/{{ line.stamp.year }}/{{ line.stamp.month }}/?id={{ line.id }}" 
+                   name="{{ line.id }}">{{ line.formattedDate }}</a>
+            </td>
+            <td style="vertical-align: middle;
+                {% if anchor == line.id %}
+                    background-color: #252;
+                {% endif %}
+                ">
+                {% if line.deleted == 'Y' %}
+                    <span class="deleted">deleted</span>
+                {% endif %}
+                <span style="color: {{ line.color }}; 
+                {% if line.deleted == 'Y' %}
+                    text-decoration: line-through;
+                {% endif %}
+                    ">
+                    {% if line.handle %}
+                        &lt;{{ line.htmlHandle|safe }}&gt;
+                    {% endif %}
+                    {{ line.htmlBody|safe }}
+                </span>
+            </td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+
+    {% include "pager.html" %}
+    
+    </form>
+
+{% endblock %}
+
+

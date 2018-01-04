@@ -1,0 +1,56 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+
+<head>
+    <title>Smaug - {% block title %}index{% endblock %}</title>
+    <link rel="stylesheet" type="text/css" href="/ircview/media/css/main.css">
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+    <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+    <script src="http://code.jquery.com/ui/1.10.1/jquery-ui.js"></script>
+
+    {% block extrahead %}{% endblock %}
+
+    <script type="text/javascript">
+    window.onload=function() {
+        {% block onload %}
+        {% endblock %}
+    }
+    </script>
+
+    {{ form.media }}
+
+</head>
+<body id="{{ pageid }}">
+
+<div id="header">
+    <div id="menu">
+        <ul id="nav">
+            <li id="nav_index"><a href="/ircview">Search</a></li>
+            <li id="nav_latest"><a href="/ircview/latest">Latest</a></li>
+            <li id="nav_tldr"><a href="/ircview/tldr">TL;DR</a></li>
+        </ul>
+    </div>
+</div>
+<div id="banner"><span style="color:#378C0B">Smaug</span> Bot</div>
+{% if user.username %}
+<div id="user">{{ user.username }} [<a href="/accounts/logout/">log out</a>]</div>
+{% endif %}
+
+<div id="main">
+
+    {% if error %}
+        {{ error }}
+    {% else %}
+        {% block content %}
+        {% endblock %}
+    {% endif %}
+
+</div>
+</body>
+</html>
+
+
+
+
+

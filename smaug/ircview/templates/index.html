@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}logs{% endblock %}
+{% block pageid %}index{% endblock %}
+
+{% block extrahead %}
+<style>
+div#index {
+    margin: 10px;
+}
+div#lookup {
+    white-space: nowrap;
+    margin: 10px;
+    width: 25em;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+    <table align="center">
+    <td valign="top">
+
+        <div class="box" id="index">
+            <table>
+            {% for year,yearmonths in years %}
+                <tr>
+                <td><b>{{ year }}</b></td>
+                {% for month in months %}
+                    <td>
+                    {% if month in yearmonths %}
+                        <a href="/ircview/{{ year }}/{{ forloop.counter }}">{{ month }}</a>
+                    {% endif %}
+                    </td>
+                {% endfor %}
+                </tr>
+            {% endfor %}
+            </table>
+
+            <!--
+            <div style="text-align: right">
+                <a href="/ircview/tldr">TL;DR</a>
+                |
+                <a href="/ircview/latest">Latest</a>
+            </div>
+            -->
+        </div>
+
+    </td><td valign="top">
+        {% include "search.html" %}
+    </td>
+    </tr>
+    </table>
+{% endblock %}
+

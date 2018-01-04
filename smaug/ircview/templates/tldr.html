@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}TL;DR{% endblock %}
+{% block pageid %}tldr{% endblock %}
+
+{% block extrahead %}
+
+<script type="text/javascript">
+    function open_url(url) {
+        window.open(url, '_blank');
+    }
+    function open_all() {
+        {% for url in links %}
+            open_url("{{ url }}")
+        {% endfor %}
+    }
+</script>
+
+{% endblock %}
+
+{% block content %}
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2/swfobject.js"></script>
+    <a name="ytplayer"></a>
+    <div id="ytplayer_div">You need Flash player 8+ and JavaScript enabled to view this video.</div>
+    <script type="text/javascript">
+      swfobject.embedSWF(
+        'http://www.youtube.com/v/{{ youtube1 }}&enablejsapi=1&rel=0&fs=1',
+        'ytplayer_div',
+        '425',
+        '344',
+        '8',
+        null,
+        null,
+        {
+          allowScriptAccess: 'always',
+          allowFullScreen: 'true'
+        },
+        {
+          id: 'ytplayer_object'
+        }
+      );
+    </script>
+    <script type="text/javascript">
+      function ytplayer_loadvideo( id ) {
+        var o = document.getElementById( 'ytplayer_object' );
+        if( o ) {
+          o.loadVideoById( id );
+        }
+      }
+    </script>
+
+    <div>
+    {% for youtubeid in youtubes %}
+       <a href="#ytplayer" onClick="ytplayer_loadvideo( '{{ youtubeid }}' );"><img src="http://img.youtube.com/vi/{{ youtubeid }}/default.jpg" /></a>
+    {% endfor %}
+    </div>
+
+    <p>
+    {% for url in images %}
+        <a href="{{ url }}"><img src="{{ url }}" style="border:0; margin-bottom:2em; max-width:100%"></a><br />
+    {% endfor %}
+    </p>
+
+    {% if links %}
+
+        <b>Other links:</b>
+        <p>
+        {% for url in links %}
+            <a href="{{ url }}">{{ url }}</a><br/>
+        {% endfor %}
+        </p>
+
+        <button onclick="open_all()">Open other links in tabs</button>
+
+    {% endif %}
+
+{% endblock %}
+

@@ -1,0 +1,176 @@
+@import url("http://fonts.googleapis.com/css?family=Italiana|Roboto|PT+Mono");
+
+body,html {
+    margin: 0px;
+    padding: 0px;
+    width: 100%;
+    font: small verdana, sans-serif;
+}
+
+div#header { 
+    height: 100px;
+    background: black url('/ircview/media/images/smaug-small.jpg') bottom left no-repeat;
+    position: relative;
+    width: 100%;
+    min-width: 600px;
+}
+
+div#banner { 
+    position:absolute;
+    top: 10px;
+    left: 150px; 
+    color: white; 
+    font: 3em 'Italiana';
+    font-weight: normal;
+}
+
+div#user { 
+    position:absolute;
+    top: 80px;
+    right: 15px; 
+    font: 8pt verdana, sans-serif;
+    color: #ddd;
+}
+
+div#user a:link, div#user a:visited {
+    color: #ddd;
+}
+
+span.heading {
+    font: small arial, sans-serif;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 10px;
+} 
+
+div#lookup {
+    
+}
+
+div#lookup table th {
+    text-align: left;
+}
+
+div#main {
+    padding: 10px;
+}
+
+span.error {
+    border: 1px dotted red;
+    display: block;
+    color: red;
+    padding: 5px;
+    margin-top: 5px;
+}
+span.error ul {
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
+
+
+h2 {
+    font: medium arial, sans-serif;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+div.box {
+    padding: 10px;
+    background-color: #ddd;
+    border-radius: 8px;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    -khtml-border-radius: 8px; /* for old Konqueror browsers */
+}
+
+span.note {
+    font: x-small verdana, sans-serif;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    display: block;
+}
+
+input.button {
+    font: small verdana, sans-serif;
+    border: 1px solid black;
+    margin-right: 5px;
+}
+
+input,select {
+    font-size: 8pt;
+}
+
+div#lookup {
+    width: 300px;
+    margin: 10px auto 10px auto;
+}
+
+div#log {
+    background-color: black;
+    color: silver;
+    font-family: 'Bitstream Vera Sans Mono', 'PT Mono', monospace;
+    font-size: 1.1em;
+    min-width: 600px;
+}
+
+div#log a {
+    color: inherit;
+}
+
+div#log td.date {
+    color: #ccc;
+    font: 8pt Verdana, sans-serif;
+    white-space: nowrap;
+    vertical-align: top;
+}
+
+
+table.pager {
+    width: 100%;
+}
+
+table.pager a {
+    color: black;
+}
+
+span.irc, span.discord, span.deleted {
+    padding: 2px;
+    margin: 1px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-style: sans-serif;
+    font-size: 0.6em;
+    color: white;
+}
+
+span.irc {
+    background-color: purple;
+}
+
+span.discord {
+    background-color: blue;
+}
+
+span.deleted {
+    background-color: grey;
+}
+
+
+/* tabbed menu */
+
+div#menu{width:99%;position:absolute;bottom:0px;min-width:45em}
+ul#nav{position:relative;left:150px;width:45em}
+ul#nav,ul#nav li{list-style-type:none;margin:0;padding:0;}
+ul#nav li{float:left; margin-right: 5px; text-align: center; font: 12pt 'Roboto', sans-serif;}
+ul#nav a{float:left;width: 6em;padding: 5px 0;background: #378C0B;text-decoration:none;color: #fff;
+    border-radius: 10px 10px 0px 0px; /* future proofing */
+    -moz-border-radius: 10px 10px 0px 0px;
+    -webkit-border-radius: 10px 10px 0px 0px;
+    -khtml-border-radius: 10px 10px 0px 0px; /* for old Konqueror browsers */
+}
+ul#nav a:hover{background-color: #69D619; color:#000}
+#index #nav_index a {background: #FFF;color: #003}
+#latest #nav_latest a {background: #FFF;color: #003}
+#tldr #nav_tldr a {background: #FFF;color: #003}
+
+

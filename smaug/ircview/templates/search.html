@@ -1,0 +1,54 @@
+<script type="text/javascript">
+    $(function() {
+        $("#id_searchText").attr('size',30);
+        $("#id_startDate").datepicker();
+        $("#id_endDate").datepicker();
+    });
+</script>
+
+<form action="/ircview/search/">
+
+<div class="box" id="lookup">
+
+    {% if error %}
+        <div class="error">{{ error }}</div><br>
+    {% endif %}
+
+    <table width="100%">
+    <tr>
+        <td>Search:</td>
+        <td>{{ form.searchText }} {{ form.searchText.errors }}</td>
+    </tr>
+    <tr>
+        <td>From Date:</td>
+        <td>{{ form.startDate }} {{ form.startDate.errors }}</td>
+    </tr>
+    <tr>
+        <td>To Date:</td>
+        <td>{{ form.endDate }} {{ form.endDate.errors }}</td>
+    </tr>
+
+    <tr>
+        <td>Author:</td>
+        <td>{{ form.author }} {{ form.author.errors }}</td>
+    </tr>
+
+    <tr>
+        <td>Protocol:</td>
+        <td>{{ form.proto }} {{ form.proto.errors }}</td>
+    </tr>
+ 
+    {% for hidden in form.hidden_fields %}
+        {{ hidden }}
+    {% endfor %}
+
+    <tr>
+        <td colspan="2" align="right">
+            <input type="submit" class="button" value="Go">
+        </td>
+    </tr>
+
+    </table>
+</div>
+
+</form>

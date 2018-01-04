@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Login required{% endblock %}
+
+{% block content %}
+    <table align="center">
+    <td valign="top">
+
+        <div class="box" id="index">
+
+        {% if form.has_errors %}
+        Your username and password didn't match. Please try again.<br/>
+        {% endif %}
+
+        <form method="post" action=".">{% csrf_token %}
+
+        <table align="center">
+        <tr><td><label for="id_username">Username:</label></td><td>{{ form.username }}</td></tr>
+        <tr><td><label for="id_password">Password:</label></td><td>{{ form.password }}</td></tr>
+        <tr><td colspan="2" align="center">
+        <input type="submit" value="Login" />
+        <input type="hidden" name="next" value="{{ next }}" />
+        </td></tr>
+        </table>
+
+        </form>
+
+        </div>
+
+    </td>
+    </tr>
+    </table>
+{% endblock %}
+
