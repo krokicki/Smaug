@@ -166,7 +166,7 @@ class SmaugIRC(Protocol):
         """
         self.getLog(channel).welcome(channel)
         if self.kicked:
-            self.sendMessage(channel, "Thanks asshole")   
+            await self.sendMessage(channel, "Thanks asshole")   
             self.kicked = False
 
         c = CommandContext(self, channel, None, None, time.time())
@@ -336,7 +336,7 @@ class SmaugIRC(Protocol):
             m = p.search(message)
             
             if nick == "NickServ" and m:
-                self.sendMessage("NickServ","identify %s" % self.password)
+                await self.sendMessage("NickServ","identify %s" % self.factory.password)
             
             self.getLog(channel).privateNotice(nick,message)
         else:
