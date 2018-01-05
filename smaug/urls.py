@@ -5,6 +5,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from smaug.ircview import views as ircviews
 from django.views.static import serve
+from django.views.generic.base import RedirectView
 
 admin.autodiscover()
 
@@ -19,12 +20,15 @@ urlpatterns = [
     url(r'^accounts/logout/$', auth_views.logout_then_login, {'login_url':'/ircview/'}),
 
     # irc view
-    url(r'^ircview/$', ircviews.index, name='index'),
-    url(r'^ircview/(\d+)/(\d+)/$', ircviews.log, name='log'),
-    url(r'^ircview/latest/$', ircviews.latest, name='latest'),
-    url(r'^ircview/tldr/$', ircviews.tldr, name='tldr'),
-    url(r'^ircview/search/$', ircviews.search, name='search'),
+    url(r'^ircview$', ircviews.index, name='index'),
+    url(r'^ircview/(\d+)/(\d+)$', ircviews.log, name='log'),
+    url(r'^ircview/latest$', ircviews.latest, name='latest'),
+    url(r'^ircview/tldr$', ircviews.tldr, name='tldr'),
+    url(r'^ircview/search$', ircviews.search, name='search'),
     url(r'^ircview/media/(?P<path>.*)$', serve, { 'document_root': settings.MEDIA_ROOT, }),
-    url(r'^ircview/message/(\d+)/$', ircviews.message, name='message')
+    url(r'^ircview/message/(\d+)$', ircviews.message, name='message'),
+
+    # root
+    url(r'^.*$', RedirectView.as_view(pattern_name='index', permanent=False))
 ]
 
