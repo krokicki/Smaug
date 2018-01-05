@@ -15,8 +15,8 @@ class Messages(Plugin):
 
     @listen("enter")
     async def hear(self, c, line):
-        num = self.checkMessages(c, "")
-        if num > 0 and c.user.id == c.cmd.me.id:
+        num = await self.checkMessages(c, "")
+        if num and num > 0 and c.user.id == c.cmd.me.id:
             c.reply("!read")
             await self.readMessages(c, str(num))
 
