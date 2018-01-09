@@ -2,12 +2,13 @@
 
 Smaug consists of a Chat Bot, a web server, and a database. These instructions will deploy this complete system on CentOS 7. 
 
-## Useful Stuff
+## Install Utilities
 ```
 sudo yum -y install screen vim bzip2
 ```
 
-## Install MySQL
+## Install MariaDB or MySQL
+The instructions below are for MariaDB, but either will work.
 ```
 sudo yum -y install mariadb-server mariadb mariadb-devel gcc
 sudo systemctl enable mariadb
@@ -39,14 +40,6 @@ Log into mysql and create Smaug's database:
 mysql -u root -p
 create database smaug;
 grant all privileges on smaug.* to 'smaug'@'localhost' identified by 'your_password_here’;
-```
-
-## Install Apache
-
-```
-sudo yum -y install httpd mod_wsgi httpd-devel
-sudo systemctl start httpd.service
-sudo systemctl enable httpd.service
 ```
 
 ## Install Anaconda
@@ -112,6 +105,15 @@ Now seed the database:
 
 ```screen ./run_bot.py```
 
+
+## Install Apache
+
+```
+sudo yum -y install httpd mod_wsgi httpd-devel
+sudo systemctl start httpd.service
+sudo systemctl enable httpd.service
+```
+
 ## Install WSGI
 In production, you should run the Smaug web application via WSGI. Make sure to execute the following from within the `smaug` conda environment:
 ```
@@ -154,12 +156,8 @@ WSGIPythonHome /opt/anaconda/envs/smaug
     WSGIScriptAlias / /var/www/smaug/django.wsgi
     Alias /static/admin /var/www/admin
 
-    WSGIDaemonProcess YOURHOSTNAME processes=2 threads=15 display-name
-=%{GROUP}
+    WSGIDaemonProcess YOURHOSTNAME processes=2 threads=15 display-name=%{GROUP}
     WSGIProcessGroup YOURHOSTNAME
 
 </VirtualHost>
 ```
-
-
-
