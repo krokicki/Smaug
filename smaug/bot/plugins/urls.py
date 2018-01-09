@@ -18,13 +18,14 @@ class Urls(Plugin):
 
     @listen("hear")
     async def hear(self, c, line):
-        content = []
         urls = findUrls(line)
         self.urls.extend(urls)
-        for url in urls:
-            if len(url) > 90:
-                content.append(self.createTinyUrl(url))
-        await c.reply(content)
+        if c.protocol.proto=='irc':
+            content = []
+            for url in urls:
+                if len(url) > 90:
+                    content.append(self.createTinyUrl(url))
+            await c.reply(content)
 
 
     @command("tiny")
