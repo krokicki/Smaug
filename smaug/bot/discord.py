@@ -22,9 +22,6 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-# To set "Playing GAME"
-#await self.change_presence(game=discord.Game(name='GAME'))
-
 def getChannelName(channel):
     if not channel: return None
     if channel.is_private:
@@ -66,6 +63,7 @@ class SmaugDiscord(discord.Client, Protocol):
         self.logdir = logdir
         self.private_channel = None
         self.channels = None
+        self.ready = False
 
 
     def getPublicChannelNames(self):
@@ -106,18 +104,24 @@ class SmaugDiscord(discord.Client, Protocol):
 
     async def on_ready(self):
         
+        if self.ready: return
+
         self.cmd.registerProtocol(self)
-        logger.info("Ready")
 
         self.private_channel = SmaugChannel(None, self, self.logdir)
         self.channels = {}
         for channel in self.get_all_channels():
             if channel.type==discord.ChannelType.text:
-                logger.info("Registering channel '%s' (id=%s)" % (channel.name, channel.id))
-                sc = SmaugChannel(channel, self, self.logdir)
-                self.channels[sc.name] = sc
-                await self.joined(channel)
+                channelName = getChannelName(channel)
+                if channelName in self.channelNames:
+                    logger.info("Registering channel '%s' (id=%s)" % (channel.name, channel.id))
+                    sc = SmaugChannel(channel, self, self.logdir)
+                    self.channels[sc.name] = sc
+                    await self.joined(channel)
         
+        logger.info("Discord client is now ready")
+        self.ready = True
+
 
     async def joined(self, channel):
         self.getLog(channel).welcome(channel.name)
@@ -134,11 +138,13 @@ class SmaugDiscord(discord.Client, Protocol):
 
     async def on_member_update(self, before, after):
 
+        logger.info("Member update for %s"%after)
+
         if before.status==discord.Status.offline and after.status==discord.Status.online:
             for sc in self.channels.values():
                 await self.userSeenEntering(after, sc.channel)
 
-        if before.status==discord.Status.online and after.status==discord.Status.offline:
+        elif before.status==discord.Status.online and after.status==discord.Status.offline:
             for sc in self.channels.values():
                 await self.userSeenLeaving(after, sc.channel)
 
@@ -148,6 +154,33 @@ class SmaugDiscord(discord.Client, Protocol):
                 beforeNick = self.getNick(before)
                 afterNick = self.getNick(after)
                 self.getLog(sc.channel).nick(user, beforeNick, afterNick)
+        
+        if before.game != after.game:
+            logger.info("Game changed")
+            nick = self.getNick(after)
+            s = None
+
+            if before.game:
+                game = before.game
+                if game.type=='1':
+                    action = "streaming"
+                else:
+                    action = "playing"
+                s = "%s is no longer %s %s" % (nick, action, game.name)
+
+            if after.game:
+                game = after.game
+                if game.type=='1':
+                    action = "streaming"
+                    suffix = ": %s" % game.url
+                else:
+                    action = "playing"
+                    suffix = ""
+                s = "%s is now %s %s%s" % (nick, action, game.name, suffix)
+
+            if s:
+                for channel in self.channels:
+                    await self.sendMessage(channel, s)
 
 
     async def userSeenEntering(self, discordUser, channel, *message):
@@ -374,6 +407,17 @@ class SmaugDiscord(discord.Client, Protocol):
         except:
             raise CmdParamError
         await self.sendNotification(who, message)
+
+
+    @command("playing")
+    @level(20)
+    @usage("!playing <game>")
+    @desc("Mark me as playing a game.")
+    async def doNotice(self, c, args):
+        game = None
+        if args:
+            game = discord.Game(name=args)
+        await self.change_presence(game=game)
 
 
     # Utilities
