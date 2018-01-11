@@ -162,7 +162,7 @@ class SmaugDiscord(discord.Client, Protocol):
 
             if before.game:
                 game = before.game
-                if game.type=='1':
+                if game.type==1:
                     action = "streaming"
                 else:
                     action = "playing"
@@ -170,7 +170,7 @@ class SmaugDiscord(discord.Client, Protocol):
 
             if after.game:
                 game = after.game
-                if game.type=='1':
+                if game.type==1:
                     action = "streaming"
                     suffix = ": %s" % game.url
                 else:
