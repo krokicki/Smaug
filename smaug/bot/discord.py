@@ -15,6 +15,7 @@ from .log import DiscordLogger
 from .protocol import Protocol
 from .command import *
 from . import settings
+from smaug.utils import dates
 
 import logging
 import time
@@ -64,6 +65,7 @@ class SmaugDiscord(discord.Client, Protocol):
         self.private_channel = None
         self.channels = None
         self.ready = False
+        self.gameStartTimes = {}
 
 
     def getPublicChannelNames(self):
@@ -156,31 +158,42 @@ class SmaugDiscord(discord.Client, Protocol):
                 self.getLog(sc.channel).nick(user, beforeNick, afterNick)
         
         if before.game != after.game:
-            logger.info("Game changed")
             nick = self.getNick(after)
             s = None
 
+            content = []
+
             if before.game:
                 game = before.game
-                if game.type==1:
-                    action = "streaming"
+
+                delta = ""
+                if nick in self.gameStartTimes:
+                    elapsed = time.time() - self.gameStartTimes[nick]
+                    del self.gameStartTimes[nick]
+                    delta = " for %s"%dates.pretty_time_delta(elapsed)
+                    action = "streamed" if game.type==1 else "played"
+                    content.append(":stop_button: %s %s %s%s" % (nick, action, game.name, delta))
                 else:
-                    action = "playing"
-                s = "%s is no longer %s %s" % (nick, action, game.name)
+                    action = "streaming" if game.type==1 else "playing"
+                    content.append(":stop_button: %s has stopped %s %s" % (nick, action, game.name))
 
             if after.game:
                 game = after.game
+                self.gameStartTimes[nick] = time.time()
                 if game.type==1:
                     action = "streaming"
                     suffix = ": %s" % game.url
                 else:
                     action = "playing"
                     suffix = ""
-                s = "%s is now %s %s%s" % (nick, action, game.name, suffix)
+                content.append(":arrow_forward: %s is now %s %s%s" % (nick, action, game.name, suffix))
 
-            if s:
+            if content:
                 for channel in self.channels:
-                    await self.sendMessage(channel, s)
+                    # We have to send each line individually so 
+                    # that they line up correctly
+                    for line in content:
+                        await self.sendMessage(channel, line)
 
 
     async def userSeenEntering(self, discordUser, channel, *message):
@@ -233,6 +246,9 @@ class SmaugDiscord(discord.Client, Protocol):
     async def on_message(self, message):
         """ Recieved a message. It could be private or public.
         """
+        # don't attempt to handle messages before we're ready for it
+        if not self.ready: return 
+
         channel = message.channel 
         content = message.content 
         author = message.author
