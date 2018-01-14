@@ -29,6 +29,6 @@ urlpatterns = [
     url(r'^ircview/message/(\d+)$', ircviews.message, name='message'),
 
     # root
-    url(r'^/$', RedirectView.as_view(pattern_name='index', permanent=False))
+    url(r'^$', RedirectView.as_view(pattern_name='index', permanent=False))
 ]
 

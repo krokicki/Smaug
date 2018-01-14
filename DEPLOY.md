@@ -153,7 +153,7 @@ WSGIPythonHome /opt/anaconda/envs/smaug
     Require all granted
     </Directory>
 
-    WSGIScriptAlias / /var/www/smaug/django.wsgi
+    WSGIScriptAlias / /var/www/smaug/smaug/wsgi.py
     Alias /static/admin /var/www/admin
 
     WSGIDaemonProcess YOURHOSTNAME processes=2 threads=15 display-name=%{GROUP}
