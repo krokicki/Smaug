@@ -193,7 +193,7 @@ def log(request, year, month, page=0, pageid=''):
 
     if lineId:
         firstId = q[0].id
-        page = (lineId - firstId) / PAGE_SIZE
+        page = int((lineId - firstId) / PAGE_SIZE)
 
     start = page*PAGE_SIZE
     end = start+PAGE_SIZE 

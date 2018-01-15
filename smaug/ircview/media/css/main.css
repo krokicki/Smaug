@@ -133,7 +133,7 @@ table.pager a {
     color: black;
 }
 
-span.irc, span.discord, span.deleted {
+span.irc, span.discord, span.deleted, span.edited {
     padding: 2px;
     margin: 1px;
     border-radius: 3px;
@@ -154,6 +154,11 @@ span.discord {
 span.deleted {
     background-color: grey;
 }
+
+span.edited {
+    background-color: grey;
+}
+
 
 
 /* tabbed menu */

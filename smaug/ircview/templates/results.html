@@ -68,6 +68,8 @@
                 ">
                 {% if line.deleted == 'Y' %}
                     <span class="deleted">deleted</span>
+                {% elif line.edited == 'Y' %}
+                    <span class="edited">edited</span>
                 {% endif %}
                 <span style="color: {{ line.color }}; 
                 {% if line.deleted == 'Y' %}
