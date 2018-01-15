@@ -58,6 +58,7 @@ class SmaugBot(object):
         self.discord = SmaugDiscord(self, 
                 settings.DISCORD_TOKEN,
                 settings.DISCORD_CHANNELS,
+                settings.DISCORD_ALERTS,
                 settings.DISCORD_LOGDIR)
         self.initProtocol("discord", settings.DISCORD_MODULES)
 

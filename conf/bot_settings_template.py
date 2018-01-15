@@ -58,6 +58,8 @@ DISCORD_MODULES = (
     'tunnels'
 )
 
+DISCORD_ALERTS = ('streaming','playing')
+
 ACCESS_NEEDS_AUTH = 3
 
 WEB_BASE_URL="http://<CUSTOMIZE>/ircview"

@@ -55,12 +55,13 @@ class SmaugDiscord(discord.Client, Protocol):
 
     proto = "discord"
 
-    def __init__(self, cmd, token, channelNames, logdir):
+    def __init__(self, cmd, token, channelNames, alerts, logdir):
         Protocol.__init__(self)
         discord.Client.__init__(self)
         self.cmd = cmd
         self.token = token
         self.channelNames = channelNames
+        self.alerts = alerts
         self.logdir = logdir
         self.private_channel = None
         self.channels = None
@@ -157,7 +158,7 @@ class SmaugDiscord(discord.Client, Protocol):
                 afterNick = self.getNick(after)
                 self.getLog(sc.channel).nick(user, beforeNick, afterNick)
         
-        if before.game != after.game:
+        if not(before.game) or not(after.game) or before.game.name != after.game.name or before.game.type != after.game.type:
             nick = self.getNick(after)
             s = None
 
@@ -171,22 +172,37 @@ class SmaugDiscord(discord.Client, Protocol):
                     elapsed = time.time() - self.gameStartTimes[nick]
                     del self.gameStartTimes[nick]
                     delta = " for %s"%dates.pretty_time_delta(elapsed)
-                    action = "streamed" if game.type==1 else "played"
-                    content.append(":stop_button: %s %s %s%s" % (nick, action, game.name, delta))
+                    if game.type==1:
+                        if "streaming" in self.alerts:
+                            action = "streamed" 
+                    else:
+                        if "playing" in self.alerts:
+                            action = "played"
+                    if action:
+                        content.append(":stop_button: %s %s %s%s" % (nick, action, game.name, delta))
                 else:
-                    action = "streaming" if game.type==1 else "playing"
-                    content.append(":stop_button: %s has stopped %s %s" % (nick, action, game.name))
+                    if game.type==1:
+                        if "streaming" in self.alerts:
+                            action = "streaming"
+                    else:
+                        if "playing" in self.alerts:
+                            action = "playing"
+                    if action:
+                        content.append(":stop_button: %s has stopped %s %s" % (nick, action, game.name))
 
             if after.game:
                 game = after.game
                 self.gameStartTimes[nick] = time.time()
                 if game.type==1:
-                    action = "streaming"
-                    suffix = ": %s" % game.url
+                    if "streaming" in self.alerts:
+                        action = "streaming"
+                        suffix = ": %s" % game.url
                 else:
-                    action = "playing"
-                    suffix = ""
-                content.append(":arrow_forward: %s is now %s %s%s" % (nick, action, game.name, suffix))
+                    if "playing" in self.alerts:
+                        action = "playing"
+                        suffix = ""
+                if action:
+                    content.append(":arrow_forward: %s is now %s %s%s" % (nick, action, game.name, suffix))
 
             if content:
                 for channel in self.channels:
