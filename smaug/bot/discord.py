@@ -20,8 +20,13 @@ from smaug.utils import dates
 import logging
 import time
 from datetime import datetime
+from django.db import connection as djangodb
 
 logger = logging.getLogger(__name__)
+
+# Needed due to https://code.djangoproject.com/ticket/21597#comment:29
+def close_db():
+    djangodb.close()
 
 def getChannelName(channel):
     if not channel: return None
@@ -67,6 +72,11 @@ class SmaugDiscord(discord.Client, Protocol):
         self.channels = None
         self.ready = False
         self.gameStartTimes = {}
+    
+        logger.info("Discord bot configuration:")
+        logger.info("channels: %s" % self.channelNames)
+        logger.info("alerts: %s" % self.alerts)
+        logger.info("logdir: %s" % self.logdir)
 
 
     def getPublicChannelNames(self):
@@ -158,13 +168,21 @@ class SmaugDiscord(discord.Client, Protocol):
                 afterNick = self.getNick(after)
                 self.getLog(sc.channel).nick(user, beforeNick, afterNick)
         
-        if not(before.game) or not(after.game) or before.game.name != after.game.name or before.game.type != after.game.type:
+        hasGame = before.game and after.game
+
+        if (not before.game and after.game) \
+                or (before.game and not after.game) \
+                or hasGame and before.game.name != after.game.name \
+                or hasGame and before.game.type != after.game.type:
+
             nick = self.getNick(after)
-            s = None
+            logger.info("%s changed games" % nick)
 
             content = []
+            action = None
 
             if before.game:
+                logger.info("  before: %s (%d)" % (before.game.name, before.game.type))
                 game = before.game
 
                 delta = ""
@@ -191,12 +209,13 @@ class SmaugDiscord(discord.Client, Protocol):
                         content.append(":stop_button: %s has stopped %s %s" % (nick, action, game.name))
 
             if after.game:
+                logger.info("  after: %s (%d)" % (after.game.name, after.game.type))
                 game = after.game
                 self.gameStartTimes[nick] = time.time()
                 if game.type==1:
                     if "streaming" in self.alerts:
                         action = "streaming"
-                        suffix = ": %s" % game.url
+                        suffix = ": <%s>" % game.url
                 else:
                     if "playing" in self.alerts:
                         action = "playing"
@@ -205,11 +224,14 @@ class SmaugDiscord(discord.Client, Protocol):
                     content.append(":arrow_forward: %s is now %s %s%s" % (nick, action, game.name, suffix))
 
             if content:
+                logger.info("Sending content: %s"%content)
                 for channel in self.channels:
                     # We have to send each line individually so 
                     # that they line up correctly
                     for line in content:
                         await self.sendMessage(channel, line)
+
+        close_db()
 
 
     async def userSeenEntering(self, discordUser, channel, *message):
@@ -308,6 +330,8 @@ class SmaugDiscord(discord.Client, Protocol):
         if authed:
             user.profile.last_comment = datetime.now()
             user.profile.save()
+
+        close_db()
   
 
     async def on_message_edit(self, before, after):
@@ -326,6 +350,7 @@ class SmaugDiscord(discord.Client, Protocol):
         else:
             # TODO: implement other types of changes
             pass
+
 
 
     async def on_message_delete(self, message):

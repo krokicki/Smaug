@@ -22,9 +22,12 @@ import time
 import re
 import random
 from datetime import datetime
+from django.db import connection as djangodb
 
 logger = logging.getLogger(__name__)
 
+def close_db():
+    djangodb.close()
 
 class Channel(object):
 
@@ -112,6 +115,7 @@ class SmaugIRC(Protocol):
         """
         logger.info("Connection made.")
         self.cmd.registerProtocol(self)
+        close_db()
 
 
     async def die(self):
@@ -159,6 +163,8 @@ class SmaugIRC(Protocol):
             nick,userhost = nickhost.split("!",1)
             self.getLog(channel).join(nick, channel)
             await self.userWho(nickhost, channel)
+        
+        close_db()
 
 
     async def joined(self, channel):
@@ -181,6 +187,8 @@ class SmaugIRC(Protocol):
         else:
             logger.error("WHO command failed")
 
+        close_db()
+
 
     async def userWho(self, nickhost, channel):
         """ When we join a channel we issue a WHO to log everyone in
@@ -192,6 +200,7 @@ class SmaugIRC(Protocol):
         logger.info("User who result for %s: %s" % (nick,userhost))
         self.channels[channel].names[nick] = userhost
         await self.userSeenEntering(nickhost, channel)
+        close_db()
 
 
     @irc3.event(irc3.rfc.KICK)
@@ -202,6 +211,7 @@ class SmaugIRC(Protocol):
             self.kickedFrom(channel, kickerNick, message)
         else:
             self.userKicked(target, channel, kickerNick, message)
+        close_db()
 
 
     def kickedFrom(self, channel, kicker, message):
@@ -225,6 +235,7 @@ class SmaugIRC(Protocol):
         del self.channels[channel].names[nick]
         self.getLog(channel).part(nick, channel)
         await self.userSeenLeaving(nickhost, channel)
+        close_db()
  
 
     @irc3.event(irc3.rfc.QUIT)
@@ -238,6 +249,7 @@ class SmaugIRC(Protocol):
                 del self.channels[channel].names[nick]
                 self.getLog(channel).quit(nick, message)
             await self.userSeenLeaving(nickhost, channel, message)
+        close_db()
 
 
     @irc3.event(irc3.rfc.NEW_NICK)
@@ -282,6 +294,7 @@ class SmaugIRC(Protocol):
             # {'srv': 'tube.paranode.net', 'me': 'Smaug'}
             who = None
         self.getLog(channel).topic(data.rstrip(), who)
+        close_db()
 
 
     @irc3.event(r"^:\S+ 333 \S+ (?P<channel>\S+).* (?P<nick>\S+) (?P<timestamp>\S+)")
@@ -291,6 +304,7 @@ class SmaugIRC(Protocol):
         """
         d = datetime.fromtimestamp(int(timestamp))
         self.getLog(channel).topicInfo(nick, d.strftime("%c"))
+        close_db()
         
 
     @irc3.event(irc3.rfc.MODE)
@@ -301,6 +315,7 @@ class SmaugIRC(Protocol):
         channel = target
         mode = "%s %s" % (modes,data)
         self.getLog(channel).mode(nickhost.split("!")[0], mode)
+        close_db()
 
     
     @irc3.event(irc3.rfc.PRIVMSG)
@@ -316,6 +331,8 @@ class SmaugIRC(Protocol):
             await self.notice(nickhost, target, data)
         else:
             logger.warn("Unrecognized message event: %s"%event) 
+
+        close_db()
      
 
     async def action(self, nickhost, channel, data):
