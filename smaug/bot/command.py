@@ -139,19 +139,6 @@ def convertFromUnicode(content):
     """ Who the hell knows what might be coming in. 
         One of these has gotta work.
     """
-    if isinstance(content, str):
-        try:
-            line = str(content)
-        except UnicodeError:
-            try:
-                line = content.encode("latin-1")
-            except UnicodeError:
-                line = content.encode("utf-8")
-        return line
+    return content
 
-    elif isinstance(content, collections.Iterable):
-        return [convertFromUnicode(line) for line in content]
-
-    else:
-        raise CmdExeError("Content is not string or iterable")
 

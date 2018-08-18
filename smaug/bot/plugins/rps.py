@@ -1,5 +1,3 @@
-# -*- coding: latin-1 -*-
-
 """
 Rock Paper Scissors
 
@@ -66,7 +64,7 @@ class RPS(Plugin):
             'rrr': "Avalanche",
             'ppp': "Bureaucrat",
             'psr': "Crescendo",
-            'rsp': u"Dénouement",
+            'rsp': u"D\xe9nouement",
             'rpp': "Fistfull o' Dollars",
             'pss': "Paper Dolls",
             'psp': "Scissor Sandwich",
