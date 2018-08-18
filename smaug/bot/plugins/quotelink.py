@@ -9,6 +9,7 @@ from aiohttp import ClientSession
 from discord import Embed
 from bs4 import BeautifulSoup
 import logging
+import re
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,9 @@ class QuoteLink(Plugin):
 
     @listen("hear")
     async def hear(self, c, line):
-        if line.strip().count(" ") < 2:
+
+        # quote must be at least 4 words (each word can be followed by punctuation)
+        if not re.match((4 * "\w+\S*? ").rstrip(), line):
             return
 
         content = []
@@ -27,7 +30,6 @@ class QuoteLink(Plugin):
         if quotes:
             for quote in quotes:
                 content.append("%s (%s)\n" % (quote.url, quote.title))
-                img_url = None
                 embed = None
                 try:
                     img_url = await self.getComicImageUrl(quote.url)
