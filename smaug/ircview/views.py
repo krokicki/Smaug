@@ -189,7 +189,7 @@ def log(request, year, month, page=0, pageid=''):
         except ValueError:
             pass
 
-    q = models.LogLine.objects.filter(year=year, month=month)
+    q = models.LogLine.objects.filter(year=year, month=month).order_by('stamp')
 
     if lineId:
         firstId = q[0].id
