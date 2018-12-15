@@ -43,24 +43,26 @@ class SmaugBot(object):
         logger.info("Loading module smaug")
         self.addPlugin("smaug", self)
 
-        # instantiate IRC client factory
-        self.irc = SmaugIRCFactory(self,
-                settings.IRC_NICK,
-                settings.IRC_PASSWORD,
-                settings.IRC_SERVER,
-                settings.IRC_PORT,
-                settings.IRC_CHANNELS,
-                settings.IRC_QUIT_MESSAGES,
-                settings.IRC_LOGDIR)
-        self.initProtocol("irc", settings.IRC_MODULES)
+        if 'irc' in settings.PROTOCOLS:
+            # instantiate IRC client factory
+            self.irc = SmaugIRCFactory(self,
+                    settings.IRC_NICK,
+                    settings.IRC_PASSWORD,
+                    settings.IRC_SERVER,
+                    settings.IRC_PORT,
+                    settings.IRC_CHANNELS,
+                    settings.IRC_QUIT_MESSAGES,
+                    settings.IRC_LOGDIR)
+            self.initProtocol("irc", settings.IRC_MODULES)
 
-        # instantiate Discord client directly
-        self.discord = SmaugDiscord(self, 
-                settings.DISCORD_TOKEN,
-                settings.DISCORD_CHANNELS,
-                settings.DISCORD_ALERTS,
-                settings.DISCORD_LOGDIR)
-        self.initProtocol("discord", settings.DISCORD_MODULES)
+        if 'discord' in settings.PROTOCOLS:
+            # instantiate Discord client directly
+            self.discord = SmaugDiscord(self, 
+                    settings.DISCORD_TOKEN,
+                    settings.DISCORD_CHANNELS,
+                    settings.DISCORD_ALERTS,
+                    settings.DISCORD_LOGDIR)
+            self.initProtocol("discord", settings.DISCORD_MODULES)
 
 
     def initProtocol(self, proto, moduleNames):
@@ -302,8 +304,10 @@ class SmaugBot(object):
         try:
             self.loop.add_signal_handler(signal.SIGINT,
                     partial(asyncio.ensure_future, self.shutdown()))
-            self.irc.startBot()
-            asyncio.ensure_future(self.discord.startBot(), loop=self.loop)
+            if 'irc' in settings.PROTOCOLS:
+                self.irc.startBot()
+            if 'discord' in settings.PROTOCOLS:
+                asyncio.ensure_future(self.discord.startBot(), loop=self.loop)
             # run the main event loop
             self.loop.run_forever()
 
