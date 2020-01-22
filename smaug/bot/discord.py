@@ -151,7 +151,10 @@ class SmaugDiscord(discord.Client, Protocol):
 
     async def on_member_update(self, before, after):
 
-        logger.info("Member update for %s"%after)
+        logger.info("Member update for %s on %s"%(after,after.server.name))
+
+        if after.server.name != settings.DISCORD_SERVER_NAME:
+            return
 
         if before.status==discord.Status.offline and after.status==discord.Status.online:
             for sc in self.channels.values():
@@ -169,6 +172,13 @@ class SmaugDiscord(discord.Client, Protocol):
                 self.getLog(sc.channel).nick(user, beforeNick, afterNick)
         
         hasGame = before.game and after.game
+        logger.info("hasGame: %s"%hasGame)
+
+        def gt(game):
+            return "%s~%s" % (game.name, game.type)
+
+        before_games = [gt(g) for g in before.activities]
+        logger.info("after(%s) in %s ?= %s" % (gt(after.game),before_games,gt(after.game) in before_games))
 
         if (not before.game and after.game) \
                 or (before.game and not after.game) \
