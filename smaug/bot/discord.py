@@ -30,7 +30,7 @@ def close_db():
 
 def getChannelName(channel):
     if not channel: return None
-    if channel.is_private:
+    if 'is_private' in channel and channel.is_private:
         # TODO: support group channels
         if channel.owner:
             return channel.owner.name
@@ -75,7 +75,7 @@ class SmaugDiscord(discord.Client, Protocol):
     
         logger.info("Discord bot configuration:")
         logger.info("channels: %s" % self.channelNames)
-        logger.info("alerts: %s" % self.alerts)
+        logger.info("alerts: %s" % str(self.alerts))
         logger.info("logdir: %s" % self.logdir)
 
 
@@ -171,19 +171,28 @@ class SmaugDiscord(discord.Client, Protocol):
                 afterNick = self.getNick(after)
                 self.getLog(sc.channel).nick(user, beforeNick, afterNick)
         
-        hasGame = before.game and after.game
-        logger.info("hasGame: %s"%hasGame)
+        gameUpdate = before.game and after.game
 
         def gt(game):
             return "%s~%s" % (game.name, game.type)
 
-        before_games = [gt(g) for g in before.activities]
-        logger.info("after(%s) in %s ?= %s" % (gt(after.game),before_games,gt(after.game) in before_games))
+        logger.info(before.activities)
+
+        #before_games = []
+        #if 'activities' in before:
+        #    before_games = [gt(g) for g in before.activities]
+        #after_games = []
+        #if 'activities' in after:
+        #    after_games = [gt(g) for g in after.activities]
+
+        #logger.info("before: %s", str(before_games))
+        #logger.info("after: %s", str(after_games))
+        #logger.info("after(%s) in %s ?= %s" % (gt(after.game),before_games,gt(after.game) in before_games))
 
         if (not before.game and after.game) \
                 or (before.game and not after.game) \
-                or hasGame and before.game.name != after.game.name \
-                or hasGame and before.game.type != after.game.type:
+                or gameUpdate and before.game.name != after.game.name \
+                or gameUpdate and before.game.type != after.game.type:
 
             nick = self.getNick(after)
             logger.info("%s changed games" % nick)
@@ -192,7 +201,7 @@ class SmaugDiscord(discord.Client, Protocol):
             action = None
 
             if before.game:
-                logger.info("  before: %s (%d)" % (before.game.name, before.game.type))
+                logger.info("  before: %s (type:%d)" % (before.game.name, before.game.type))
                 game = before.game
 
                 delta = ""
@@ -202,7 +211,7 @@ class SmaugDiscord(discord.Client, Protocol):
                     delta = " for %s"%dates.pretty_time_delta(elapsed)
                     if game.type==1:
                         if "streaming" in self.alerts:
-                            action = "streamed" 
+                            action = "streamed"
                     else:
                         if "playing" in self.alerts:
                             action = "played"
@@ -219,7 +228,7 @@ class SmaugDiscord(discord.Client, Protocol):
                         content.append(":stop_button: %s has stopped %s %s" % (nick, action, game.name))
 
             if after.game:
-                logger.info("  after: %s (%d)" % (after.game.name, after.game.type))
+                logger.info("  after: %s (type:%d)" % (after.game.name, after.game.type))
                 game = after.game
                 self.gameStartTimes[nick] = time.time()
                 if game.type==1:

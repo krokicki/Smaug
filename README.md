@@ -31,7 +31,7 @@ source activate smaug
 
 2. Install dependencies
 ```
-pip install discord.py
+pip install discord.py=="0.16.12"
 pip install django=="1.11"
 pip install "mysqlclient>=1.3,<1.4"
 pip install "google-api-python-client>=1.6,<1.7"
@@ -52,20 +52,21 @@ python setup.py install
 
 ```
 create database smaug;
-grant all privileges on smaug.* to 'smaug'@'localhost' identified by 'your_password_here';
+create user 'smaug'@'localhost' identified by '1234qwer';
+grant all on smaug.* to 'smaug'@'localhost';
 ```
 
-6. Populate the database
-```
-./manage.py migrate
-```
-
-7. Customize the configuration
+6. Customize the configuration
 ```
 cp conf/bot_settings_template.py bot_settings.py
 cp conf/web_settings_template.py web_settings.py
 ```
 You will need to edit these files to provide your IRC server information, Discord token, etc.
+
+7. Populate the database
+```
+./manage.py migrate
+```
 
 8. Create super user
 ```
