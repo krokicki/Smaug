@@ -23,22 +23,22 @@ Smaug is designed to be easily extensible with other chat protocols (provided th
 
 ## Getting Started
 
-1. Create a conda environment
+### Create a conda environment
 ```
 conda create -n smaug python=3.5
 source activate smaug
 ```
 
-2. Install dependencies
+### Install dependencies
 ```
-pip install discord.py=="0.16.12"
+pip install discord.py=="1.3.2"
 pip install django=="1.11"
 pip install "mysqlclient>=1.3,<1.4"
 pip install "google-api-python-client>=1.6,<1.7"
 pip install "beautifulsoup4>=4.6,<5.0"
 ```
 
-3. Install my fork of irc3
+### Install my fork of irc3
 The fork fixes some issues with the official irc3 codebase.
 ```
 git clone https://github.com/krokicki/irc3.git
@@ -46,9 +46,9 @@ cd irc3
 python setup.py install
 ```
 
-4. Install MySQL or MariaDB
+### Install MySQL or MariaDB
 
-5. Create an empty database and grant access to it
+### Create an empty database and grant access to it
 
 ```
 create database smaug;
@@ -56,33 +56,33 @@ create user 'smaug'@'localhost' identified by '1234qwer';
 grant all on smaug.* to 'smaug'@'localhost';
 ```
 
-6. Customize the configuration
+### Customize the configuration
 ```
 cp conf/bot_settings_template.py bot_settings.py
 cp conf/web_settings_template.py web_settings.py
 ```
 You will need to edit these files to provide your IRC server information, Discord token, etc.
 
-7. Populate the database
+### Populate the database
 ```
 ./manage.py migrate
 ```
 
-8. Create super user
+### Create super user
 ```
 ./manage.py createsuperuser
 ```
 
-8. Run the web server
+### Run the web server
 ```
 screen ./run_web.sh
 ```
 
-5. Import existing data
+### Import existing data
 
 Open http://<yourhost>/admin/ and log in to create users.
 
-6. Run the chat bot
+### Run the chat bot
 ```
 screen ./run_bot.py
 ```

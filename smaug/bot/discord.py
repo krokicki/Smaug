@@ -30,12 +30,8 @@ def close_db():
 
 def getChannelName(channel):
     if not channel: return None
-    if 'is_private' in channel and channel.is_private:
-        # TODO: support group channels
-        if channel.owner:
-            return channel.owner.name
-        else:
-            return channel.recipients[0].name
+    if isinstance(channel, discord.DMChannel):
+        return channel.recipient.display_name
     return "#"+channel.name
 
 
@@ -44,7 +40,7 @@ class SmaugChannel(object):
     def __init__(self, channel, proto, logdir):
         self.channel = channel
         if channel:
-            logname = "%s_%s" % (channel.server.name, channel.name)
+            logname = "%s_%s" % (channel.guild.name, channel.name)
             self.name = getChannelName(channel)
         else:
             logname = "private_messages"
@@ -151,9 +147,9 @@ class SmaugDiscord(discord.Client, Protocol):
 
     async def on_member_update(self, before, after):
 
-        logger.info("Member update for %s on %s"%(after,after.server.name))
+        logger.info("Member update for %s on %s"%(after,after.guild.name))
 
-        if after.server.name != settings.DISCORD_SERVER_NAME:
+        if after.guild.name != settings.DISCORD_SERVER_NAME:
             return
 
         if before.status==discord.Status.offline and after.status==discord.Status.online:
@@ -170,7 +166,10 @@ class SmaugDiscord(discord.Client, Protocol):
                 beforeNick = self.getNick(before)
                 afterNick = self.getNick(after)
                 self.getLog(sc.channel).nick(user, beforeNick, afterNick)
-        
+
+        if True: return
+        # TODO: figure out game changes
+
         gameUpdate = before.game and after.game
 
         def gt(game):
@@ -324,15 +323,18 @@ class SmaugDiscord(discord.Client, Protocol):
 
         context = CommandContext(self, getChannelName(channel), user, nick, time.time())
         cmd,args = findCommand(content)
-        
+
         # log this event
-        if channel.is_private: 
+        if isinstance(channel, discord.DMChannel):
             log_msg = content
             if cmd and args: log_msg = "!%s [arguments hidden]" % cmd
             self.getLog(None).privateMessage(user,nick,log_msg,external_id=message.id)
-        else: 
-            serverName = channel.server.name
+        elif isinstance(channel, discord.TextChannel):
+            #serverName = channel.guild.name
             self.getLog(channel).publicMessage(user,nick,content,external_id=message.id)
+        else:
+            print("Error: unrecognized channel type: %s" % channel)
+            return
 
         # ignore commands from ourself
         if self.user and author.id==self.user.id:
@@ -424,7 +426,7 @@ class SmaugDiscord(discord.Client, Protocol):
                     target = self.getDiscordMemberByName(where)
                 if not target:
                     raise Exception("Could not resolve target '%s'"%where)
-            await self.send_message(target, line, embed=em)
+            await target.send(line, embed=em)
 
 
     def getDiscordChannelByName(self, name):

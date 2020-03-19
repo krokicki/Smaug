@@ -5,6 +5,7 @@ import bot_settings
 import web_settings
 import re
 
+
 def dict_from_module(module):
     p = re.compile("^[A-Z_]+$")
     context = {}
@@ -12,6 +13,7 @@ def dict_from_module(module):
         if p.match(var):
             context[var] = getattr(module, var)
     return context
+
 
 if __name__ == "__main__":
 

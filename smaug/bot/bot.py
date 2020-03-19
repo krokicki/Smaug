@@ -18,6 +18,7 @@ import signal
 
 logger = logging.getLogger(__name__)
 
+
 class SmaugBot(object):
     
     def __init__(self):
@@ -270,7 +271,7 @@ class SmaugBot(object):
         for proto in list(self.protocols.values()):
             logger.debug("Awaiting %s client's demise" % proto.proto)
             await proto.die()
-        self.discord.close()
+        await self.discord.close()
         logger.debug("All clients are now closed")
 
 
