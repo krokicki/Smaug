@@ -167,89 +167,52 @@ class SmaugDiscord(discord.Client, Protocol):
                 afterNick = self.getNick(after)
                 self.getLog(sc.channel).nick(user, beforeNick, afterNick)
 
-        if True: return
-        # TODO: figure out game changes
-
-        gameUpdate = before.game and after.game
-
-        def gt(game):
-            return "%s~%s" % (game.name, game.type)
-
-        logger.info(before.activities)
-
-        #before_games = []
-        #if 'activities' in before:
-        #    before_games = [gt(g) for g in before.activities]
-        #after_games = []
-        #if 'activities' in after:
-        #    after_games = [gt(g) for g in after.activities]
-
-        #logger.info("before: %s", str(before_games))
-        #logger.info("after: %s", str(after_games))
-        #logger.info("after(%s) in %s ?= %s" % (gt(after.game),before_games,gt(after.game) in before_games))
-
-        if (not before.game and after.game) \
-                or (before.game and not after.game) \
-                or gameUpdate and before.game.name != after.game.name \
-                or gameUpdate and before.game.type != after.game.type:
-
-            nick = self.getNick(after)
-            logger.info("%s changed games" % nick)
-
-            content = []
-            action = None
-
-            if before.game:
-                logger.info("  before: %s (type:%d)" % (before.game.name, before.game.type))
-                game = before.game
-
-                delta = ""
-                if nick in self.gameStartTimes:
-                    elapsed = time.time() - self.gameStartTimes[nick]
-                    del self.gameStartTimes[nick]
-                    delta = " for %s"%dates.pretty_time_delta(elapsed)
-                    if game.type==1:
-                        if "streaming" in self.alerts:
-                            action = "streamed"
-                    else:
-                        if "playing" in self.alerts:
-                            action = "played"
-                    if action:
-                        content.append(":stop_button: %s %s %s%s" % (nick, action, game.name, delta))
-                else:
-                    if game.type==1:
-                        if "streaming" in self.alerts:
-                            action = "streaming"
-                    else:
-                        if "playing" in self.alerts:
-                            action = "playing"
-                    if action:
-                        content.append(":stop_button: %s has stopped %s %s" % (nick, action, game.name))
-
-            if after.game:
-                logger.info("  after: %s (type:%d)" % (after.game.name, after.game.type))
-                game = after.game
-                self.gameStartTimes[nick] = time.time()
-                if game.type==1:
-                    if "streaming" in self.alerts:
-                        action = "streaming"
-                        suffix = ": <%s>" % game.url
-                else:
-                    if "playing" in self.alerts:
-                        action = "playing"
-                        suffix = ""
-                if action:
-                    content.append(":arrow_forward: %s is now %s %s%s" % (nick, action, game.name, suffix))
-
-            if content:
-                logger.info("Sending content: %s"%content)
-                for channel in self.channels:
-                    # We have to send each line individually so 
-                    # that they line up correctly
-                    for line in content:
-                        await self.sendMessage(channel, line)
+        if "playing" in self.alerts:
+            await self.alert_playing_changes(before, after)
+        if "streaming" in self.alerts:
+            await self.alert_streaming_changes(before, after)
 
         close_db()
+
+
+    async def alert_playing_changes(self, before, after):
+        # TODO: this could be reimplemented, but it's probably too spammy anyway
+        pass
+
+    async def alert_streaming_changes(self, before, after):
+
+        nick = self.getNick(after)
+        content = []
+
+        def activity_label(activity):
+            # return "%s (%s)" % (activity.game, activity.name)
+            return activity.game
+
+        if (not before.activity or before.activity.type.name != "streaming") \
+                and (after.activity and after.activity.type.name == "streaming"):
+            # Started streaming
+            self.gameStartTimes[nick] = time.time()
+            content.append(":arrow_forward: %s is now streaming %s: %s" % (nick, activity_label(after.activity), after.activity.url))
+
+        elif (before.activity and before.activity.type.name == "streaming") \
+                and (not after.activity or after.activity.type.name != "streaming"):
+            # Stopped streaming
+            if nick in self.gameStartTimes:
+                elapsed = time.time() - self.gameStartTimes[nick]
+                del self.gameStartTimes[nick]
+                delta = dates.pretty_time_delta(elapsed)
+                content.append(":stop_button: %s streamed %s for %s" % (nick, activity_label(before.activity), delta))
+            else:
+                content.append(":stop_button: %s has stopped streaming %s" % (nick, activity_label(before.activity)))
+
+        if content:
+            logger.info("Sending content: %s"%content)
+            for channel in self.channels:
+                # We have to send each line individually so
+                # that they line up correctly
+                for line in content:
+                    await self.sendMessage(channel, line)
+
 
 
     async def userSeenEntering(self, discordUser, channel, *message):
