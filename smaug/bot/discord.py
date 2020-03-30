@@ -192,7 +192,7 @@ class SmaugDiscord(discord.Client, Protocol):
                 and (after.activity and after.activity.type.name == "streaming"):
             # Started streaming
             self.gameStartTimes[nick] = time.time()
-            content.append(":arrow_forward: %s is now streaming %s: %s" % (nick, activity_label(after.activity), after.activity.url))
+            content.append(":arrow_forward: %s is now streaming %s: <%s>" % (nick, activity_label(after.activity), after.activity.url))
 
         elif (before.activity and before.activity.type.name == "streaming") \
                 and (not after.activity or after.activity.type.name != "streaming"):
@@ -455,14 +455,13 @@ class SmaugDiscord(discord.Client, Protocol):
     @usage("!playing <game>")
     @desc("Mark me as playing a game.")
     async def doNotice(self, c, args):
-        game = None
+        activity = None
         if args:
-            game = discord.Game(name=args)
-        await self.change_presence(game=game)
+            activity = discord.Activity(name=args)
+        await self.change_presence(activity=activity)
 
 
     # Utilities
-
 
     def getChannel(self, channelName):
         if not channelName:
