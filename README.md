@@ -31,7 +31,7 @@ source activate smaug
 
 ### Install dependencies
 ```
-pip install discord.py=="1.3.2"
+pip install discord.py=="1.3.4"
 pip install django=="1.11"
 pip install "mysqlclient>=1.3,<1.4"
 pip install "google-api-python-client>=1.6,<1.7"
