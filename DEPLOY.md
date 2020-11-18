@@ -65,7 +65,7 @@ export PATH="/opt/anaconda/bin:$PATH”
 ```
 sudo -u anaconda /opt/anaconda/bin/conda create -y -n smaug python=3.5
 source activate smaug
-pip install discord.py
+pip install discord.py=="1.3.2"
 pip install django=="1.11"
 pip install "mysqlclient>=1.3,<1.4"
 pip install "google-api-python-client>=1.6,<1.7"
@@ -161,3 +161,26 @@ WSGIPythonHome /opt/anaconda/envs/smaug
 
 </VirtualHost>
 ```
+
+## Let's Encrypt
+
+```
+sudo yum install certbot-apache
+sudo certbot renew --dry-run
+sudo crontab -e
+0 0,12 * * * python -c 'import random; import time; time.sleep(random.random() * 3600)' && certbot renew
+```
+
+## Create Service
+
+```
+sudo yum install ruby
+sudo gem install pleaserun
+sudo $HOME/bin/pleaserun --user <your username> --group <your username> --name smaug --chdir /var/www/smaug /var/www/smaug/run_bot.py
+sudo systemctl start smaug
+```
+
+
+
+
+
