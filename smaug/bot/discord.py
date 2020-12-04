@@ -59,9 +59,13 @@ class SmaugDiscord(discord.Client, Protocol):
     def __init__(self, cmd, token, channelNames, alerts, logdir):
         Protocol.__init__(self)
         intents = discord.Intents.default()
+        intents.guilds = True
+        intents.members = True
+        intents.dm_messages = True
+        intents.messages = True
         intents.presences = True
         intents.typing = False
-        discord.Client.__init__(self, intents=intents)
+        discord.Client.__init__(self, intents=intents, fetch_offline_members=False)
         self.cmd = cmd
         self.token = token
         self.channelNames = channelNames
@@ -137,12 +141,16 @@ class SmaugDiscord(discord.Client, Protocol):
 
     async def joined(self, channel):
         self.getLog(channel).welcome(channel.name)
-        self.getLog(channel).topic(channel.topic.rstrip())
+        if channel.topic:
+            self.getLog(channel).topic(channel.topic.rstrip())
         c = CommandContext(self, getChannelName(channel), None, None, time.time())
         await self.cmd.notifyListeners(c, "joined", channel.name)
         for member in self.get_all_members():
             await self.userSeenEntering(member, None)
 
+
+    async def on_error(self, event, *args, **kwargs):
+        logger.exception("Error encountered while handling %s event"%event)
 
     async def on_resumed(self):
         logger.info("Resumed")
@@ -269,7 +277,9 @@ class SmaugDiscord(discord.Client, Protocol):
         """ Recieved a message. It could be private or public.
         """
         # don't attempt to handle messages before we're ready for it
-        if not self.ready: return 
+        if not self.ready: 
+            logger.info("Not yet ready for message processing")
+            return
 
         channel = message.channel 
         content = message.content 
