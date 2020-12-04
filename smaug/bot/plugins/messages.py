@@ -34,9 +34,9 @@ class Messages(Plugin):
 
     @listen("hearExit")
     async def hearExit(self, c, message=""):
-        if c.protocol.proto in self.users[c.user.id]:
-            del self.users[c.user.id][c.protocol.proto]
-
+        if c.user.id in self.users:
+            if c.protocol.proto in self.users[c.user.id]:
+                del self.users[c.user.id][c.protocol.proto]
 
     @command("send")
     @level(2)
