@@ -58,7 +58,10 @@ class SmaugDiscord(discord.Client, Protocol):
 
     def __init__(self, cmd, token, channelNames, alerts, logdir):
         Protocol.__init__(self)
-        discord.Client.__init__(self)
+        intents = discord.Intents.default()
+        intents.presences = True
+        intents.typing = False
+        discord.Client.__init__(self, intents=intents)
         self.cmd = cmd
         self.token = token
         self.channelNames = channelNames
